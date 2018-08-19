@@ -42,6 +42,9 @@ app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
 
+app.use(express.static(__dirname + '/public'));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get('/login', (req, res) => {
     console.log('Login page loaded');
