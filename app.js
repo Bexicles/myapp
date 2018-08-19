@@ -68,7 +68,7 @@ app.get('/auth/google/callback', (req, res, next) => {
     (req, res) => {
         req.session.token = req.user.token;
         console.log("Google callback called, redirecting to dashboard"+ req.session.token);
-        res.render('dashboard', {name: user.displayName, bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
+        res.render('dashboard', {name: 'Bex', bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
     }
 );
 
@@ -81,7 +81,7 @@ app.get('/' , (req, res) => {
         return res.redirect('/login')
     }
     console.log("About to render dashboard");
-    res.render('dashboard', {name: user.displayName, bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
+    res.render('dashboard', {name: 'Bex', bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
 });
 
 
