@@ -1,80 +1,66 @@
-port = process.env.PORT;
-sessionKey = process.env.SESSION_KEY;
-client_ID = process.env.CLIENT_ID;
+const port = process.env.PORT;
+// const sessionKey = process.env.SESSION_KEY;
+const client_ID = process.env.CLIENT_ID;
+const client_Secret = process.env.CLIENT_SECRET;
 
 const express = require('express');
 const exphbs = require('express-handlebars');
-var session  = require('express-session');
-var cors = require('cors');
-
-
-const app = express();
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const passport = require('passport');
 const uuid = require('uuid/v4')
-const auth = require('./auth');
-const cookieParser = require('cookie-parser');
-const cookieSession = require('cookie-session');
 
-app.use(express.static(__dirname + '/public'));
-app.use(cors());
+const app = express();
 
-app.use(cookieParser(sessionKey));
-app.use(cookieSession({
-    name: 'session',
-    keys: [sessionKey]  // key to sign/verify cookies
-}));
 
-app.use(session({
-    genid: (req) => {
-        console.log('Inside the session middleware')
-        console.log(req.sessionID)
-        return uuid() // use UUIDs for session IDs
+passport.use(new GoogleStrategy(
+    {
+        clientID: client_ID,
+        clientSecret: client_Secret,
+        callbackURL: 'https://my-money-dashboard.herokuapp.com/auth/google/callback',
     },
-    secret: sessionKey,
-    resave: true,
-    saveUninitialized: true
-}))
+    (token, refreshToken, profile, done) => {
+        console.log("Authenticated USer:" + token);
+        return done(null, {
+            profile: profile,
+            token: token
+        });
+    }
+));
+passport.serializeUser((user, done) => {
+    console.log('Serialising user'+user);
+    done(null, user);
+});
+passport.deserializeUser((user, done) => {
+    console.log('Deserialising user');
+    done(null, user);
+});
 
 
-
-auth(passport);
-app.use(passport.initialize());
-// app.use(passport.session());
-
-// Register Handlebars view engine
+// Use Handlebars view engine
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 // Use Handlebars view engine
 app.set('view engine', 'handlebars');
 
 
 
-function setSessionCookie(req, res) {
-    if (req.session.token) {
-        res.cookie('token', req.session.token);
-        res.json({
-            status: 'session cookie set'
-        });
-    } else {
-        res.cookie('token', '')
-        res.json({
-            status: 'session cookie not set'
-        });
-    }
-}
+app.get('/login', (req, res) => {
+    console.log('Login page loaded');
+    res.render('login', {googleClientId: client_ID});
+});
 
 
 
-app.get('/auth/google', passport.authenticate('google', {
-     scope: ['https://www.googleapis.com/auth/userinfo.profile']
-}));
+app.get('/auth/google', (req, res, next) => {
+    console.log('Auth called'); next(); }
+    passport.authenticate('google', {
+        scope: ['https://www.googleapis.com/auth/userinfo.profile']
+    })
+);
 
 
-app.post('/login', passport.authenticate('google', { successRedirect: '/',
-    failureRedirect: '/login' }));
-
-
-app.get('/auth/google/callback',
-    passport.authenticate('google', {failureRedirect:'/login'
+app.get('/auth/google/callback', (req, res, next) => {
+    console.log('Callback called'); next(); },
+        passport.authenticate('google', {failureRedirect:'/login'
     }),
     (req, res) => {
         req.session.token = req.user.token;
@@ -82,23 +68,6 @@ app.get('/auth/google/callback',
         res.render('dashboard', {name: 'Bex', bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
     }
 );
-
-
-app.get('/logout', (req, res) => {
-    req.logout();
-    req.session = null;
-    res.redirect('/public');
-});
-
-
-//
-// function ensureAuthenticated(req, res, next) {
-//     if (req.isAuthenticated()) {
-//         console.log("Is authenticated, going to render dashboard");
-//         return next();
-//     }
-//     res.redirect('/login')
-// }
 
 
 app.get('/' , (req, res) => {
@@ -112,10 +81,7 @@ app.get('/' , (req, res) => {
     res.render('dashboard', {name: 'Bex', bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
 });
 
-app.get('/login', (req, res) => {
-    console.log('in login handler');
-    res.render('login', {googleClientId: client_ID, layout: 'basic'});
-});
+
 
 
 app.listen(port, function () {
