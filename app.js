@@ -3,6 +3,7 @@ const port = process.env.PORT;
 const client_ID = process.env.CLIENT_ID;
 const client_Secret = process.env.CLIENT_SECRET;
 
+
 const express = require('express');
 const exphbs = require('express-handlebars');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
@@ -10,6 +11,9 @@ const passport = require('passport');
 const uuid = require('uuid/v4')
 
 const app = express();
+
+const {OAuth2Client} = require('google-auth-library');
+const client = new OAuth2Client(client_ID);
 
 
 passport.use(new GoogleStrategy(
@@ -67,6 +71,14 @@ app.get('/auth/google/callback', (req, res, next) => {
     }),
     (req, res) => {
         req.session.token = req.user.token;
+        const ticket =  client.verifyIdToken({
+            idToken: req.user.token,
+            audience: client_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+        });
+        const payload = ticket.getPayload();
+        const givenName = payload['given_name'];
+        console.log("Given name: "+ givenName);
+
         console.log("Google callback called, redirecting to dashboard"+ req.session.token);
         res.render('dashboard', {name: 'Bex', bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
     }
