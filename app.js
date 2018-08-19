@@ -9,12 +9,12 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const passport = require('passport');
-const uuid = require('uuid/v4')
+// const uuid = require('uuid/v4')
 
 const app = express();
 
 const {OAuth2Client} = require('google-auth-library');
-const client = new OAuth2Client(client_ID);
+// const client = new OAuth2Client(client_ID);
 
 
 passport.use(new GoogleStrategy(
@@ -75,17 +75,17 @@ app.get('/auth/google/callback', (req, res, next) => {
     console.log('Callback called'); next(); },
         passport.authenticate('google', {failureRedirect:'/login'
     }),
-    (req, res, userObj) => {
+    (req, res) => {
         req.session.token = req.user.token;
 
 
         console.log("Google callback called, redirecting to dashboard"+ req.session.token);
-        res.render('dashboard', {name: userObj.name, bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
+        res.render('dashboard', {name: req.session.passport.user.name, bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
     }
 );
 
 
-app.get('/' , (req, res, userObj) => {
+app.get('/' , (req, res) => {
     console.log("in get(/)");
     console.log("Request: " +req.isAuthenticated())
     if (!req.isAuthenticated()) {
@@ -93,7 +93,7 @@ app.get('/' , (req, res, userObj) => {
         return res.redirect('/login')
     }
     console.log("About to render dashboard");
-    res.render('dashboard', {name: userObj.name, bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
+    res.render('dashboard', {name: req.session.passport.user.name, bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
 });
 
 
