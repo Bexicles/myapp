@@ -33,6 +33,11 @@ passport.use(new GoogleStrategy(
 ));
 passport.serializeUser((user, done) => {
     console.log('Serialising user'+JSON.stringify(user));
+    let userObj = {}
+    userObj.name = user.profile.name.givenName;
+    userObj.surname = user.profile.name.familyName;
+    userObj.email = user.profile.emails[0].value;
+    userObj.photo = user.profile.photos[0].value;
     done(null, user);
 });
 passport.deserializeUser((user, done) => {
@@ -81,7 +86,7 @@ app.get('/auth/google/callback', (req, res, next) => {
         // console.log("Given name: "+ givenName);
 
         console.log("Google callback called, redirecting to dashboard"+ req.session.token);
-        res.render('dashboard', {name: 'Bex', bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
+        res.render('dashboard', {name: req.session.passport.user.profile.name.givenName, bex_monzo: '52.06', peet_monzo: '66.43', bex_firstdirect: '150.23', peet_lloyds: '9,998.12', bex_barclaycard: '-500', peet_mbna1: '-9,786.99'});
     }
 );
 
