@@ -60,7 +60,7 @@ app.get('/login', (req, res) => {
 app.get('/auth/google', (req, res, next) => {
     console.log('Auth called'); next(); },
     passport.authenticate('google', {
-        scope: ['https://www.googleapis.com/auth/userinfo.profile']
+        scope: ['profile', 'email']
     })
 );
 
