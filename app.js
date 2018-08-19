@@ -4,6 +4,7 @@ const client_ID = process.env.CLIENT_ID;
 const client_Secret = process.env.CLIENT_SECRET;
 
 
+
 const express = require('express');
 const exphbs = require('express-handlebars');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
@@ -31,7 +32,7 @@ passport.use(new GoogleStrategy(
     }
 ));
 passport.serializeUser((user, done) => {
-    console.log('Serialising user'+user);
+    console.log('Serialising user'+JSON.stringify(user));
     done(null, user);
 });
 passport.deserializeUser((user, done) => {
