@@ -1,5 +1,4 @@
 const port = process.env.PORT;
-// const sessionKey = process.env.SESSION_KEY;
 const client_ID = process.env.CLIENT_ID;
 const client_Secret = process.env.CLIENT_SECRET;
 
@@ -9,12 +8,8 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const passport = require('passport');
-// const uuid = require('uuid/v4')
 
 const app = express();
-
-const {OAuth2Client} = require('google-auth-library');
-// const client = new OAuth2Client(client_ID);
 
 
 passport.use(new GoogleStrategy(
